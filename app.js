@@ -63,7 +63,7 @@
         });
 
         // CSV URL
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTlm3-nR03uOp7xObXSOhk5dR9RPeICHwwHO4wMDLQGqTnMRl5fcGkeV5aWwHfHzV2pPKTpvnoV32dk/pub?gid=0&single=true&output=csv';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPbWvJ48kO6qBsoeKCULDtjq9dQwmzymuYqaYC_j3wzIBho0g15omNuEiEBCnBhNoEqNNWia3mz2y/pub?gid=0&single=true&output=csv';
 
         // Global variable to store the data
         let allData = [];
@@ -303,4 +303,5 @@
                 // Reload the table with sorted data
                 loadTablePage(1);
             });
+
         });
