@@ -63,7 +63,7 @@ document.getElementById('logout-btn').addEventListener('click', function(e) {
 });
 
 // CSV URL
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTdCz5rt3YdbKMvirwq06c22Em3LEAt09Iu6jm2gkv9DmNuhPEqbJ__kwxqxv_3MjGhWJgTubQvKxWa/pub?gid=0&single=true&output=csv';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnBczg6Ag3T0GwwKZbNqlbKVE_5rccgCU_CfBdaOYhOX_UIb2nP4qYgk7hA-xUx2ww85ld8ju2MUvf/pub?gid=0&single=true&output=csv';
 
 // Global variable to store the data
 let allData = [];
