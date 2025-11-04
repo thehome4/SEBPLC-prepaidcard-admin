@@ -170,6 +170,103 @@ function parseCSVLine(line) {
     return result;
 }
 
+// Function to convert download link to view link
+function convertToViewLink(downloadLink) {
+    // Extract file ID from Google Drive download link
+    const match = downloadLink.match(/[&?]id=([^&]+)/);
+    if (match && match[1]) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
+    }
+    return downloadLink; // Return original if pattern doesn't match
+}
+
+// Function to show PDF in modal
+function showPDFModal(pdfUrl) {
+    // Create modal elements if they don't exist
+    let modal = document.getElementById('pdf-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'pdf-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <iframe id="pdf-viewer" src="" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Add modal styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.8);
+            }
+            .modal-content {
+                position: relative;
+                background-color: #fefefe;
+                margin: 5% auto;
+                padding: 20px;
+                width: 90%;
+                max-width: 1000px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            .close-btn {
+                position: absolute;
+                right: 15px;
+                top: 10px;
+                font-size: 48px;
+                font-weight: bold;
+                cursor: pointer;
+                color: #ff0000ff;
+                z-index: 1001;
+            }
+            .close-btn:hover {
+                color: #f87979ff;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Close modal functionality
+        modal.querySelector('.close-btn').addEventListener('click', function() {
+            modal.style.display = 'none';
+            document.getElementById('pdf-viewer').src = '';
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                document.getElementById('pdf-viewer').src = '';
+            }
+        });
+    }
+    
+    // Set PDF URL and show modal
+    const viewLink = convertToViewLink(pdfUrl);
+    document.getElementById('pdf-viewer').src = viewLink;
+    modal.style.display = 'block';
+}
+
+// Function to download file
+function downloadFile(downloadLink, fileName) {
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = downloadLink;
+    link.download = fileName || 'document.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // Function to load a specific page of data
 function loadTablePage(page) {
     currentPage = page;
@@ -192,9 +289,35 @@ function loadTablePage(page) {
                 <td>${item.fullName}</td>
                 <td>${item.contact}</td>
                 <td>${item.fileName}</td>
-                <td><a href="${item.fileLink}" class="file-link" target="_blank">View File</a></td>
+                <td>
+                    <div class="file-actions">
+                        <button class="view-btn" data-filelink="${item.fileLink}">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="download-btn" data-filelink="${item.fileLink}" data-filename="${item.fileName}">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </td>
             `;
             tableBody.appendChild(row);
+        });
+        
+        // Add event listeners to view buttons
+        document.querySelectorAll('.view-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const fileLink = this.getAttribute('data-filelink');
+                showPDFModal(fileLink);
+            });
+        });
+        
+        // Add event listeners to download buttons
+        document.querySelectorAll('.download-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const fileLink = this.getAttribute('data-filelink');
+                const fileName = this.getAttribute('data-filename');
+                downloadFile(fileLink, fileName);
+            });
         });
     }
     
