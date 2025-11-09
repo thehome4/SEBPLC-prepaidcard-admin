@@ -1,13 +1,3 @@
-function decodeCredentials() {
-    const encodedUser = 'YWRtaW4='; 
-    const encodedPass = 'U2VicGxjQDEyMzQ='; 
-    
-    return {
-        username: atob(encodedUser),
-        password: atob(encodedPass)
-    };
-}
-
 // Check if user is already logged in
 function checkLoginStatus() {
     const isLoggedIn = localStorage.getItem('sebplcLoggedIn');
@@ -34,11 +24,8 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     const rememberMe = document.getElementById('remember-me').checked;
     const errorAlert = document.getElementById('login-error');
     
-    // Get decoded credentials
-    const credentials = decodeCredentials();
-    
     // Check credentials
-    if (username === credentials.username && password === credentials.password) {
+    if (username === 'admin' && password === 'Sebplc@1234') {
         // Store login status in localStorage
         if (rememberMe) {
             localStorage.setItem('sebplcLoggedIn', 'true');
@@ -88,39 +75,17 @@ const itemsPerPage = 10;
 let downloadedFiles = JSON.parse(localStorage.getItem('sebplcDownloadedFiles') || '[]');
 let lastRefreshTime = localStorage.getItem('sebplcLastRefreshTime') || null;
 
-// Initialize last refresh time if not set
-if (!lastRefreshTime) {
-    lastRefreshTime = new Date().toISOString();
-    localStorage.setItem('sebplcLastRefreshTime', lastRefreshTime);
-}
-
 // Function to load CSV data
 async function loadCSVData() {
     const loadingAlert = document.getElementById('loading-data');
     loadingAlert.style.display = 'block';
     
     try {
-        // Add cache-busting parameter to prevent caching issues
-        const timestamp = new Date().getTime();
-        const response = await fetch(CSV_URL + '&_=' + timestamp, {
-            headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+        const response = await fetch(CSV_URL);
         const csvText = await response.text();
         
         // Parse CSV data
         allData = parseCSV(csvText);
-        
-        if (allData.length === 0) {
-            throw new Error('No data found in CSV');
-        }
         
         // Sort by timestamp (newest first)
         allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -136,13 +101,18 @@ async function loadCSVData() {
         
         loadingAlert.style.display = 'none';
         
+        // Update last refresh time
+        updateLastRefreshTime();
     } catch (error) {
         console.error('Error loading CSV data:', error);
         loadingAlert.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading data. Please try again later.';
-        
-        // Retry after 3 seconds
-        setTimeout(loadCSVData, 3000);
     }
+}
+
+// Function to update last refresh time
+function updateLastRefreshTime() {
+    lastRefreshTime = new Date().toISOString();
+    localStorage.setItem('sebplcLastRefreshTime', lastRefreshTime);
 }
 
 // Function to check if a file is new
@@ -171,46 +141,6 @@ document.getElementById('refresh-btn').addEventListener('click', function() {
         }, 500);
     });
 });
-
-// Add "Mark all as seen" button functionality
-function addMarkAllAsSeenButton() {
-    // Check if there are any new files
-    const hasNewFiles = allData.some(item => isFileNew(item.timestamp) && !isFileDownloaded(item.fileLink));
-    
-    if (!hasNewFiles) return;
-    
-    let markAllSeenBtn = document.getElementById('mark-all-seen-btn');
-    if (!markAllSeenBtn) {
-        markAllSeenBtn = document.createElement('button');
-        markAllSeenBtn.id = 'mark-all-seen-btn';
-        markAllSeenBtn.className = 'mark-all-seen-btn';
-        markAllSeenBtn.innerHTML = '<i class="fas fa-eye"></i> Mark All as Seen';
-        markAllSeenBtn.addEventListener('click', function() {
-            updateLastRefreshTime();
-        });
-        
-        // Add it to the dashboard controls
-        const dashboardControls = document.querySelector('.dashboard-controls');
-        if (dashboardControls) {
-            dashboardControls.appendChild(markAllSeenBtn);
-        }
-    }
-}
-
-// Function to update last refresh time (call this when you want to clear "new" indicators)
-function updateLastRefreshTime() {
-    lastRefreshTime = new Date().toISOString();
-    localStorage.setItem('sebplcLastRefreshTime', lastRefreshTime);
-    
-    // Remove the mark all as seen button
-    const markAllSeenBtn = document.getElementById('mark-all-seen-btn');
-    if (markAllSeenBtn) {
-        markAllSeenBtn.remove();
-    }
-    
-    // Reload table to update "new" indicators
-    loadTablePage(currentPage);
-}
 
 // Simple CSV parser
 function parseCSV(csvText) {
@@ -326,19 +256,6 @@ function showPDFModal(pdfUrl) {
             .close-btn:hover {
                 color: #f87979ff;
             }
-            .mark-all-seen-btn {
-                background: #6c757d;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 14px;
-                margin-left: 10px;
-            }
-            .mark-all-seen-btn:hover {
-                background: #5a6268;
-            }
         `;
         document.head.appendChild(style);
         
@@ -418,7 +335,7 @@ function loadTablePage(page) {
         tableBody.appendChild(row);
     } else {
         pageData.forEach(item => {
-            const isNew = isFileNew(item.timestamp) && !isFileDownloaded(item.fileLink);
+            const isNew = isFileNew(item.timestamp);
             const isDownloaded = isFileDownloaded(item.fileLink);
             
             const row = document.createElement('tr');
@@ -473,9 +390,6 @@ function loadTablePage(page) {
     
     // Update pagination buttons
     updatePaginationButtons(totalPages);
-    
-    // Add mark all as seen button if there are new files
-    addMarkAllAsSeenButton();
 }
 
 // Function to update pagination buttons
