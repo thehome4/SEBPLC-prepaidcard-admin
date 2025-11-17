@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Southeast Bank PLC - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="login-container" id="login-container">
+        <div class="login-form">
+            <div class="login-header">
+                <h2>Southeast Bank PLC</h2>
+                <p>Admin Dashboard Login</p>
+            </div>
+            <div class="alert alert-error" id="login-error">
+                Invalid username or password. Please try again.
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-block">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="container" id="dashboard" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                <h1>Southeast Bank PLC</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" data-section="analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="#" data-section="downloads"><i class="fas fa-download"></i> Downloads</a></li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Application Dashboard</h2>
+                <div class="refresh-container">
+                    <button class="refresh-btn" id="refresh-btn">
+                        <i class="fas fa-refresh"></i> Refresh Data
+                    </button>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <span>Admin User</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="dashboard-content" id="dashboard-section">
+                <!-- Stats Cards -->
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-applications">0</h3>
+                            <p>Total Applications</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon secondary">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="today-applications">0</h3>
+                            <p>Today's Applications</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon accent">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="week-applications">0</h3>
+                            <p>This Week</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search-input" placeholder="Search by any keyword...">
+                        </div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="timestamp">By Timestamp</button>
+                            <button class="filter-btn" data-filter="filename">By File Name</button>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" id="loading-data">
+                        <span class="loading"></span> Loading data from Google Sheets...
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Full Name</th>
+                                <th>Contact</th>
+                                <th>File Name</th>
+                                <th>File Link</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <div class="pagination-info" id="pagination-info">Showing 0 entries</div>
+                        <div class="pagination-buttons">
+                            <button class="pagination-btn" id="prev-btn">Previous</button>
+                            <button class="pagination-btn active">1</button>
+                            <button class="pagination-btn" id="next-btn">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div class="analytics-content" id="analytics-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Application Analytics</h2>
+                    <p>Visual representation of application trends</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="applications-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Downloads Section -->
+            <div class="downloads-content" id="downloads-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Download Center</h2>
+                    <p>Download application data in various formats</p>
+                </div>
+                <div class="download-options">
+                    <div class="download-card">
+                        <div class="download-icon">
+                            <i class="fas fa-file-archive"></i>
+                        </div>
+                        <div class="download-info">
+                            <h3>Download All Files</h3>
+                            <p>Download all application files as a ZIP archive</p>
+                            <button class="btn download-all-btn" id="download-all-zip">
+                                <i class="fas fa-download"></i> Download All ZIP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div id="pdf-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <iframe id="pdf-viewer" src="" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
